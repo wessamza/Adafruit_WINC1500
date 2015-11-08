@@ -135,14 +135,14 @@ static void resolve_cb(uint8_t * /* hostName */, uint32_t hostIp)
 	WiFi._resolve = hostIp;
 }
 
-WiFiClass::WiFiClass()
+Adafruit_WINC1500::Adafruit_WINC1500()
 {
 	_mode = WL_RESET_MODE;
 	_status = WL_NO_SHIELD;
 	_init = 0;
 }
 
-int WiFiClass::init()
+int Adafruit_WINC1500::init()
 {
 	tstrWifiInitParam param;
 	int8_t ret;
@@ -169,7 +169,7 @@ int WiFiClass::init()
 	_localip = 0;
 	_submask = 0;
 	_gateway = 0;
-	memset(_client, 0, sizeof(WiFiClient *) * TCP_SOCK_MAX);
+	memset(_client, 0, sizeof(Adafruit_WINC1500Client *) * TCP_SOCK_MAX);
 
 	// Initialize IO expander (LED control).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 1);
@@ -186,7 +186,7 @@ extern "C" {
 	sint8 nm_get_firmware_info(tstrM2mRev* M2mRev);
 }
 
-char* WiFiClass::firmwareVersion()
+char* Adafruit_WINC1500::firmwareVersion()
 {
 	tstrM2mRev rev;
 	
@@ -204,7 +204,7 @@ char* WiFiClass::firmwareVersion()
 	return _version;
 }
 
-uint8_t WiFiClass::begin()
+uint8_t Adafruit_WINC1500::begin()
 {
 	if (!_init) {
 		init();
@@ -236,12 +236,12 @@ uint8_t WiFiClass::begin()
 	return _status;
 }
 
-uint8_t WiFiClass::begin(const char *ssid)
+uint8_t Adafruit_WINC1500::begin(const char *ssid)
 {
 	return startConnect(ssid, M2M_WIFI_SEC_OPEN, (void *)0);
 }
 
-uint8_t WiFiClass::begin(const char *ssid, uint8_t key_idx, const char* key)
+uint8_t Adafruit_WINC1500::begin(const char *ssid, uint8_t key_idx, const char* key)
 {
 	tstrM2mWifiWepParams wep_params;
 
@@ -252,12 +252,12 @@ uint8_t WiFiClass::begin(const char *ssid, uint8_t key_idx, const char* key)
 	return startConnect(ssid, M2M_WIFI_SEC_WEP, &wep_params);
 }
 
-uint8_t WiFiClass::begin(const char *ssid, const char *key)
+uint8_t Adafruit_WINC1500::begin(const char *ssid, const char *key)
 {
 	return startConnect(ssid, M2M_WIFI_SEC_WPA_PSK, key);
 }
 
-uint8_t WiFiClass::startConnect(const char *ssid, uint8_t u8SecType, const void *pvAuthInfo)
+uint8_t Adafruit_WINC1500::startConnect(const char *ssid, uint8_t u8SecType, const void *pvAuthInfo)
 {
 	if (!_init) {
 		init();
@@ -290,12 +290,12 @@ uint8_t WiFiClass::startConnect(const char *ssid, uint8_t u8SecType, const void 
 	return _status;
 }
 
-uint8_t WiFiClass::beginAP(char *ssid)
+uint8_t Adafruit_WINC1500::beginAP(char *ssid)
 {
 	return beginAP(ssid, 1);
 }
 
-uint8_t WiFiClass::beginAP(char *ssid, uint8_t channel)
+uint8_t Adafruit_WINC1500::beginAP(char *ssid, uint8_t channel)
 {
 	tstrM2MAPConfig strM2MAPConfig;
 
@@ -331,12 +331,12 @@ uint8_t WiFiClass::beginAP(char *ssid, uint8_t channel)
 	return _status;
 }
 
-uint8_t WiFiClass::beginProvision(char *ssid, char *url)
+uint8_t Adafruit_WINC1500::beginProvision(char *ssid, char *url)
 {
 	return beginProvision(ssid, url, 1);
 }
 
-uint8_t WiFiClass::beginProvision(char *ssid, char *url, uint8_t channel)
+uint8_t Adafruit_WINC1500::beginProvision(char *ssid, char *url, uint8_t channel)
 {
 	tstrM2MAPConfig strM2MAPConfig;
 
@@ -374,7 +374,7 @@ uint8_t WiFiClass::beginProvision(char *ssid, char *url, uint8_t channel)
 	return _status;
 }
 
-uint32_t WiFiClass::provisioned()
+uint32_t Adafruit_WINC1500::provisioned()
 {
 	if (_mode == WL_STA_MODE) {
 		return 1;
@@ -384,7 +384,7 @@ uint32_t WiFiClass::provisioned()
 	}
 }
 
-void WiFiClass::config(IPAddress local_ip)
+void Adafruit_WINC1500::config(IPAddress local_ip)
 {
 	tstrM2MIPConfig conf;
 
@@ -398,7 +398,7 @@ void WiFiClass::config(IPAddress local_ip)
 	_gateway = 0;
 }
 
-void WiFiClass::config(IPAddress local_ip, IPAddress dns_server)
+void Adafruit_WINC1500::config(IPAddress local_ip, IPAddress dns_server)
 {
 	tstrM2MIPConfig conf;
 
@@ -412,7 +412,7 @@ void WiFiClass::config(IPAddress local_ip, IPAddress dns_server)
 	_gateway = 0;
 }
 
-void WiFiClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway)
+void Adafruit_WINC1500::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway)
 {
 	tstrM2MIPConfig conf;
 
@@ -426,7 +426,7 @@ void WiFiClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gatew
 	_gateway = conf.u32Gateway;
 }
 
-void WiFiClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet)
+void Adafruit_WINC1500::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet)
 {
 	tstrM2MIPConfig conf;
 
@@ -440,7 +440,7 @@ void WiFiClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gatew
 	_gateway = conf.u32Gateway;
 }
 
-void WiFiClass::disconnect()
+void Adafruit_WINC1500::disconnect()
 {
 	m2m_wifi_disconnect();
 
@@ -448,28 +448,28 @@ void WiFiClass::disconnect()
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 1);
 }
 
-uint8_t *WiFiClass::macAddress(uint8_t *mac)
+uint8_t *Adafruit_WINC1500::macAddress(uint8_t *mac)
 {
 	m2m_wifi_get_mac_address(mac);
 	return mac;
 }
 
-uint32_t WiFiClass::localIP()
+uint32_t Adafruit_WINC1500::localIP()
 {
 	return _localip;
 }
 
-uint32_t WiFiClass::subnetMask()
+uint32_t Adafruit_WINC1500::subnetMask()
 {
 	return _submask;
 }
 
-uint32_t WiFiClass::gatewayIP()
+uint32_t Adafruit_WINC1500::gatewayIP()
 {
 	return _gateway;
 }
 
-char* WiFiClass::SSID()
+char* Adafruit_WINC1500::SSID()
 {
 	if (_status == WL_CONNECTED) {
 		return _ssid;
@@ -479,7 +479,7 @@ char* WiFiClass::SSID()
 	}
 }
 
-uint8_t* WiFiClass::BSSID(uint8_t* bssid)
+uint8_t* Adafruit_WINC1500::BSSID(uint8_t* bssid)
 {
 	int8_t net = scanNetworks();
 	
@@ -496,7 +496,7 @@ uint8_t* WiFiClass::BSSID(uint8_t* bssid)
 	return bssid;
 }
 
-int32_t WiFiClass::RSSI()
+int32_t Adafruit_WINC1500::RSSI()
 {
 	// Clear pending events:
 	m2m_wifi_handle_events(NULL);
@@ -516,7 +516,7 @@ int32_t WiFiClass::RSSI()
 	return _resolve;
 }
 
-int8_t WiFiClass::scanNetworks()
+int8_t Adafruit_WINC1500::scanNetworks()
 {
 	wl_status_t tmp = _status;
 
@@ -539,7 +539,7 @@ int8_t WiFiClass::scanNetworks()
 	return m2m_wifi_get_num_ap_found();
 }
 
-char* WiFiClass::SSID(uint8_t pos)
+char* Adafruit_WINC1500::SSID(uint8_t pos)
 {
 	wl_status_t tmp = _status;
 
@@ -560,7 +560,7 @@ char* WiFiClass::SSID(uint8_t pos)
 	return _scan_ssid;
 }
 
-int32_t WiFiClass::RSSI(uint8_t pos)
+int32_t Adafruit_WINC1500::RSSI(uint8_t pos)
 {
 	wl_status_t tmp = _status;
 
@@ -580,7 +580,7 @@ int32_t WiFiClass::RSSI(uint8_t pos)
 	return _resolve;
 }
 
-uint8_t WiFiClass::encryptionType()
+uint8_t Adafruit_WINC1500::encryptionType()
 { 
 	int8_t net = scanNetworks();
 
@@ -594,7 +594,7 @@ uint8_t WiFiClass::encryptionType()
 	return _scan_auth;
 }
 
-uint8_t WiFiClass::encryptionType(uint8_t pos)
+uint8_t Adafruit_WINC1500::encryptionType(uint8_t pos)
 {
 	wl_status_t tmp = _status;
 
@@ -614,7 +614,7 @@ uint8_t WiFiClass::encryptionType(uint8_t pos)
 	return _scan_auth;
 }
 
-uint8_t WiFiClass::status()
+uint8_t Adafruit_WINC1500::status()
 {
 	if (!_init) {
 		init();
@@ -626,7 +626,7 @@ uint8_t WiFiClass::status()
 	return _status;
 }
 
-int WiFiClass::hostByName(const char* aHostname, IPAddress& aResult)
+int Adafruit_WINC1500::hostByName(const char* aHostname, IPAddress& aResult)
 {
 	// Network led ON.
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 0);
@@ -656,10 +656,10 @@ int WiFiClass::hostByName(const char* aHostname, IPAddress& aResult)
 	return 1;
 }
 
-void WiFiClass::refresh(void)
+void Adafruit_WINC1500::refresh(void)
 {
 	// Update state machine:
 	m2m_wifi_handle_events(NULL);
 }
 
-WiFiClass WiFi;
+Adafruit_WINC1500 WiFi;

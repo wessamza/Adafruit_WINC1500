@@ -35,7 +35,7 @@ private:
 
 public:
 	Adafruit_WINC1500Server(uint16_t);
-	WiFiClient available(uint8_t* status = NULL);
+	Adafruit_WINC1500Client available(uint8_t* status = NULL);
 	void begin();
 	uint8_t beginSSL();
 	virtual size_t write(uint8_t);

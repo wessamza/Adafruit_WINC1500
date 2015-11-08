@@ -84,7 +84,7 @@ uint8_t Adafruit_WINC1500Server::begin(uint8_t opt)
 	return 1;
 }
 
-WiFiClient Adafruit_WINC1500Server::available(uint8_t* status)
+Adafruit_WINC1500Client Adafruit_WINC1500Server::available(uint8_t* status)
 {
 	uint32_t flag;
 	
@@ -96,10 +96,10 @@ WiFiClient Adafruit_WINC1500Server::available(uint8_t* status)
 		 if (status != NULL) {
 			*status = 0;
 		 }
-		return WiFiClient(((flag & SOCKET_BUFFER_FLAG_SPAWN_SOCKET_MSK) >> SOCKET_BUFFER_FLAG_SPAWN_SOCKET_POS), _socket + 1);
+		return Adafruit_WINC1500Client(((flag & SOCKET_BUFFER_FLAG_SPAWN_SOCKET_MSK) >> SOCKET_BUFFER_FLAG_SPAWN_SOCKET_POS), _socket + 1);
 	}
 
-	return WiFiClient();
+	return Adafruit_WINC1500Client();
 }
 
 uint8_t Adafruit_WINC1500Server::status() {
@@ -115,7 +115,7 @@ size_t Adafruit_WINC1500Server::write(uint8_t b)
 size_t Adafruit_WINC1500Server::write(const uint8_t *buffer, size_t size)
 {
 	size_t n = 0;
-	WiFiClient *client;
+	Adafruit_WINC1500Client *client;
 
 	for (int sock = 0; sock < TCP_SOCK_MAX; sock++) {
 		client = WiFi._client[sock];

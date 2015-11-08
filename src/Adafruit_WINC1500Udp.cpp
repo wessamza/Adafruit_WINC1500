@@ -125,7 +125,7 @@ void Adafruit_WINC1500UDP::stop()
 int Adafruit_WINC1500UDP::beginPacket(const char *host, uint16_t port)
 {
 	IPAddress ip;
-	if (Adafruit_WINC1500.hostByName(host, ip)) {
+	if (WiFi.hostByName(host, ip)) {
 		_sndIP = ip;
 		_sndPort = port;
 	}

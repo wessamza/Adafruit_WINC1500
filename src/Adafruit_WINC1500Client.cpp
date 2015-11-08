@@ -22,7 +22,7 @@ extern "C" {
 	#include "driver/include/m2m_periph.h"
 }
 
-#include "WiFi101.h"
+#include "Adafruit_WINC1500.h"
 #include "Adafruit_WINC1500Client.h"
 
 #define IS_CONNECTED	(_flag & SOCKET_BUFFER_FLAG_CONNECTED)

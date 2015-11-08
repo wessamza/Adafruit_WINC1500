@@ -30,7 +30,7 @@ class Adafruit_WINC1500Client : public Client {
 public:
 	Adafruit_WINC1500Client();
 	Adafruit_WINC1500Client(uint8_t sock, uint8_t parentsock = 0);
-	Adafruit_WINC1500Client(const WiFiClient& other);
+	Adafruit_WINC1500Client(const Adafruit_WINC1500Client& other);
 
 	uint8_t status();
 	
