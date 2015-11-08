@@ -17,7 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "WiFi101.h"
+#include "Adafruit_WINC1500.h"
 
 extern "C" {
   #include "bsp/include/nm_bsp.h"

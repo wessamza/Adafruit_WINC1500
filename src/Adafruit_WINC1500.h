@@ -29,8 +29,8 @@ extern "C" {
 	#include "socket/include/socket.h"
 }
 
-#include "WiFiClient.h"
-#include "WiFiServer.h"
+#include "Adafruit_WINC1500Client.h"
+#include "Adafruit_WINC1500Server.h"
 
 typedef enum {
 	WL_NO_SHIELD = 255,
@@ -60,7 +60,7 @@ typedef enum {
 	WL_AP_MODE
 } wl_mode_t;
 
-class WiFiClass
+class Adafruit_WINC1500
 {
 public:
 	uint32_t _localip;
@@ -73,9 +73,9 @@ public:
 	char _scan_ssid[M2M_MAX_SSID_LEN];
 	uint8_t _scan_auth;
 	char _ssid[M2M_MAX_SSID_LEN];
-	WiFiClient *_client[TCP_SOCK_MAX];
+	Adafruit_WINC1500Client *_client[TCP_SOCK_MAX];
 
-	WiFiClass();
+	Adafruit_WINC1500();
 
 	int init();
 	
@@ -142,6 +142,6 @@ private:
 	uint8_t startConnect(const char *ssid, uint8_t u8SecType, const void *pvAuthInfo);
 };
 
-extern WiFiClass WiFi;
+extern Adafruit_WINC1500 WiFi;
 
 #endif /* WIFI_H */
