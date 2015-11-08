@@ -48,8 +48,11 @@
 
 static tpfNmBspIsr gpfIsr;
 
-#define CONF_WINC_RESET_PIN				5
-#define CONF_WINC_INTN_PIN				7
+// was harcoded, now configurable, by making extern
+//#define CONF_WINC_RESET_PIN				5
+//#define CONF_WINC_INTN_PIN				7
+extern uint8_t CONF_WINC_RESET_PIN;
+extern uint8_t CONF_WINC_INTN_PIN;
 
 void __attribute__((weak)) attachInterruptMultiArch(uint32_t pin, void *chip_isr, uint32_t mode)
 {

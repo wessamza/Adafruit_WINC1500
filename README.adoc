@@ -5,6 +5,8 @@ This library implements a network driver for devices based on the ATMEL WINC1500
 For more information about this library please visit us at
 https://www.arduino.cc/en/Reference/WiFi101
 
+* adapted for universal pin usage, renamed to avoid namespace conflict *
+
 == License ==
 
 Copyright (c) Arduino LLC. All right reserved.

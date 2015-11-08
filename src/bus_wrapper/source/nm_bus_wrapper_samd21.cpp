@@ -53,7 +53,9 @@ extern "C" {
 
 }
 
-#define CONF_WINC_CS_PIN	10
+
+// make CS pin configurable by 'extern'ing it
+extern uint8_t CONF_WINC_CS_PIN;
 
 #define NM_BUS_MAX_TRX_SZ	256
 

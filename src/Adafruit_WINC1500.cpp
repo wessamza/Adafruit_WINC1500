@@ -19,6 +19,11 @@
 
 #include "Adafruit_WINC1500.h"
 
+// was harcoded, now configurable
+uint8_t CONF_WINC_CS_PIN  =  10;
+uint8_t CONF_WINC_RESET_PIN = 5;
+uint8_t CONF_WINC_INTN_PIN = 7;
+
 extern "C" {
   #include "bsp/include/nm_bsp.h"
   #include "socket/include/socket_buffer.h"
@@ -135,11 +140,24 @@ static void resolve_cb(uint8_t * /* hostName */, uint32_t hostIp)
 	WiFi._resolve = hostIp;
 }
 
+// default hardware setup
 Adafruit_WINC1500::Adafruit_WINC1500()
 {
 	_mode = WL_RESET_MODE;
 	_status = WL_NO_SHIELD;
 	_init = 0;
+}
+
+// adjustable hardware pins
+Adafruit_WINC1500::Adafruit_WINC1500(uint8_t winc_cs, uint8_t winc_irq, uint8_t winc_rst)
+{
+	_mode = WL_RESET_MODE;
+	_status = WL_NO_SHIELD;
+	_init = 0;
+	CONF_WINC_CS_PIN  =  winc_cs;
+	CONF_WINC_RESET_PIN = winc_rst;
+	CONF_WINC_INTN_PIN = winc_irq;
+
 }
 
 int Adafruit_WINC1500::init()
@@ -662,4 +680,5 @@ void Adafruit_WINC1500::refresh(void)
 	m2m_wifi_handle_events(NULL);
 }
 
-Adafruit_WINC1500 WiFi;
+// let us define in main program, with optional pins!
+//Adafruit_WINC1500 WiFi;

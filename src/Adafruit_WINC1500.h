@@ -76,6 +76,7 @@ public:
 	Adafruit_WINC1500Client *_client[TCP_SOCK_MAX];
 
 	Adafruit_WINC1500();
+	Adafruit_WINC1500(uint8_t winc_cs, uint8_t winc_irq, uint8_t winc_rst);
 
 	int init();
 	
