@@ -22,7 +22,7 @@
 
 #include <Udp.h>
 
-class WiFiUDP : public UDP {
+class Adafruit_WINC1500UDP : public UDP {
 private:
 	SOCKET _socket;
 	uint32_t _flag;
@@ -36,7 +36,7 @@ private:
 	uint32_t _sndIP;
 
 public:
-  WiFiUDP();  // Constructor
+  Adafruit_WINC1500UDP();  // Constructor
   virtual uint8_t begin(uint16_t);	// initialize, start listening on specified port. Returns 1 if successful, 0 if there are no sockets available to use
   virtual void stop();  // Finish with the UDP socket
 

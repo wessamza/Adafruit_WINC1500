@@ -17,29 +17,29 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "WiFiSSLClient.h"
+#include "Adafruit_WINC1500SSLClient.h"
 
-WiFiSSLClient::WiFiSSLClient() : 
-	WiFiClient()
+Adafruit_WINC1500SSLClient::Adafruit_WINC1500SSLClient() : 
+	Adafruit_WINC1500Client()
 {
 }
 
-WiFiSSLClient::WiFiSSLClient(uint8_t sock, uint8_t parentsock) :
-	WiFiClient(sock, parentsock)
+Adafruit_WINC1500SSLClient::Adafruit_WINC1500SSLClient(uint8_t sock, uint8_t parentsock) :
+	Adafruit_WINC1500Client(sock, parentsock)
 {  
 }
 
-WiFiSSLClient::WiFiSSLClient(const WiFiSSLClient& other) :
-	WiFiClient(other)
+Adafruit_WINC1500SSLClient::Adafruit_WINC1500SSLClient(const Adafruit_WINC1500SSLClient& other) :
+	Adafruit_WINC1500Client(other)
 {
 }
 
-int WiFiSSLClient::connect(IPAddress ip, uint16_t port)
+int Adafruit_WINC1500SSLClient::connect(IPAddress ip, uint16_t port)
 {
-	return WiFiClient::connectSSL(ip, port);
+	return Adafruit_WINC1500Client::connectSSL(ip, port);
 }
 
-int WiFiSSLClient::connect(const char* host, uint16_t port)
+int Adafruit_WINC1500SSLClient::connect(const char* host, uint16_t port)
 {
-	return WiFiClient::connectSSL(host, port);
+	return Adafruit_WINC1500Client::connectSSL(host, port);
 }

@@ -23,11 +23,11 @@ extern "C" {
 }
 
 #include "WiFi101.h"
-#include "WiFiClient.h"
+#include "Adafruit_WINC1500Client.h"
 
 #define IS_CONNECTED	(_flag & SOCKET_BUFFER_FLAG_CONNECTED)
 
-WiFiClient::WiFiClient()
+Adafruit_WINC1500Client::Adafruit_WINC1500Client()
 {
 	_socket = -1;
 	_flag = 0;
@@ -35,7 +35,7 @@ WiFiClient::WiFiClient()
 	_tail = 0;
 }
 
-WiFiClient::WiFiClient(uint8_t sock, uint8_t parentsock)
+Adafruit_WINC1500Client::Adafruit_WINC1500Client(uint8_t sock, uint8_t parentsock)
 {
 	// Spawn connected TCP client from TCP server socket:
 	_socket = sock;
@@ -60,7 +60,7 @@ WiFiClient::WiFiClient(uint8_t sock, uint8_t parentsock)
 	m2m_wifi_handle_events(NULL);
 }
 
-WiFiClient::WiFiClient(const WiFiClient& other)
+Adafruit_WINC1500Client::Adafruit_WINC1500Client(const Adafruit_WINC1500Client& other)
 {
 	_socket = other._socket;
 	_flag = other._flag;
@@ -81,27 +81,27 @@ WiFiClient::WiFiClient(const WiFiClient& other)
 	m2m_wifi_handle_events(NULL);
 }
 
-int WiFiClient::connectSSL(const char* host, uint16_t port)
+int Adafruit_WINC1500Client::connectSSL(const char* host, uint16_t port)
 {
 	return connect(host, port, SOCKET_FLAGS_SSL);
 }
 
-int WiFiClient::connectSSL(IPAddress ip, uint16_t port)
+int Adafruit_WINC1500Client::connectSSL(IPAddress ip, uint16_t port)
 {
 	return connect(ip, port, SOCKET_FLAGS_SSL, 0);
 }
 
-int WiFiClient::connect(const char* host, uint16_t port)
+int Adafruit_WINC1500Client::connect(const char* host, uint16_t port)
 {
 	return connect(host, port, 0);
 }
 
-int WiFiClient::connect(IPAddress ip, uint16_t port)
+int Adafruit_WINC1500Client::connect(IPAddress ip, uint16_t port)
 {
 	return connect(ip, port, 0, 0);	
 }
 
-int WiFiClient::connect(const char* host, uint16_t port, uint8_t opt)
+int Adafruit_WINC1500Client::connect(const char* host, uint16_t port, uint8_t opt)
 {
 	IPAddress remote_addr;
 	if (WiFi.hostByName(host, remote_addr)) {
@@ -110,7 +110,7 @@ int WiFiClient::connect(const char* host, uint16_t port, uint8_t opt)
 	return 0;
 }
 
-int WiFiClient::connect(IPAddress ip, uint16_t port, uint8_t opt, const uint8_t *hostname)
+int Adafruit_WINC1500Client::connect(IPAddress ip, uint16_t port, uint8_t opt, const uint8_t *hostname)
 {
 	struct sockaddr_in addr;
 
@@ -155,12 +155,12 @@ int WiFiClient::connect(IPAddress ip, uint16_t port, uint8_t opt, const uint8_t 
 	return 1;
 }
 
-size_t WiFiClient::write(uint8_t b)
+size_t Adafruit_WINC1500Client::write(uint8_t b)
 {
 	return write(&b, 1);
 }
 
-size_t WiFiClient::write(const uint8_t *buf, size_t size)
+size_t Adafruit_WINC1500Client::write(const uint8_t *buf, size_t size)
 {
 	sint16 err;
 
@@ -190,7 +190,7 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size)
 	return size;
 }
 
-int WiFiClient::available()
+int Adafruit_WINC1500Client::available()
 {
 	m2m_wifi_handle_events(NULL);
 	
@@ -200,7 +200,7 @@ int WiFiClient::available()
 	return 0;
 }
 
-int WiFiClient::read()
+int Adafruit_WINC1500Client::read()
 {
 	uint8_t b;
 
@@ -218,7 +218,7 @@ int WiFiClient::read()
 	return b;
 }
 
-int WiFiClient::read(uint8_t* buf, size_t size)
+int Adafruit_WINC1500Client::read(uint8_t* buf, size_t size)
 {
 	// sizeof(size_t) is architecture dependent
 	// but we need a 16 bit data type here
@@ -246,18 +246,18 @@ int WiFiClient::read(uint8_t* buf, size_t size)
 	return size_tmp;
 }
 
-int WiFiClient::peek()
+int Adafruit_WINC1500Client::peek()
 {
 	return read();
 }
 
-void WiFiClient::flush()
+void Adafruit_WINC1500Client::flush()
 {
 	while (available())
 		read();
 }
 
-void WiFiClient::stop()
+void Adafruit_WINC1500Client::stop()
 {
 	if (_socket < 0)
 		return;
@@ -268,7 +268,7 @@ void WiFiClient::stop()
 	_flag = 0;
 }
 
-uint8_t WiFiClient::connected()
+uint8_t Adafruit_WINC1500Client::connected()
 {
 	m2m_wifi_handle_events(NULL);
 	if (available())
@@ -276,13 +276,13 @@ uint8_t WiFiClient::connected()
 	return IS_CONNECTED;
 }
 
-uint8_t WiFiClient::status()
+uint8_t Adafruit_WINC1500Client::status()
 {
 	// Deprecated.
 	return 0;
 }
 
-WiFiClient::operator bool()
+Adafruit_WINC1500Client::operator bool()
 {
 	return _socket != -1;
 }

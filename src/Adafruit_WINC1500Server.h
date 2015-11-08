@@ -23,9 +23,9 @@
 #include <Arduino.h>
 #include <Server.h>
 
-class WiFiClient;
+class Adafruit_WINC1500Client;
 
-class WiFiServer : public Server {
+class Adafruit_WINC1500Server : public Server {
 
 private:
 	SOCKET _socket;
@@ -34,7 +34,7 @@ private:
 	uint8_t begin(uint8_t opt);
 
 public:
-	WiFiServer(uint16_t);
+	Adafruit_WINC1500Server(uint16_t);
 	WiFiClient available(uint8_t* status = NULL);
 	void begin();
 	uint8_t beginSSL();

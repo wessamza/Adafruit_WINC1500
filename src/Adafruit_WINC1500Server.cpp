@@ -21,29 +21,29 @@ extern "C" {
 	#include "socket/include/socket.h"
 }
 
-#include "WiFi101.h"
-#include "WiFiClient.h"
-#include "WiFiServer.h"
+#include "Adafruit_WINC1500.h"
+#include "Adafruit_WINC1500Client.h"
+#include "Adafruit_WINC1500Server.h"
 
 #define READY	(_flag & SOCKET_BUFFER_FLAG_BIND)
 
-WiFiServer::WiFiServer(uint16_t port)
+Adafruit_WINC1500Server::Adafruit_WINC1500Server(uint16_t port)
 {
 	_port = port;
 	_flag = 0;
 }
 
-void WiFiServer::begin()
+void Adafruit_WINC1500Server::begin()
 {
 	begin(0);
 }
 
-uint8_t WiFiServer::beginSSL()
+uint8_t Adafruit_WINC1500Server::beginSSL()
 {
 	return begin(SOCKET_FLAGS_SSL);
 }
 
-uint8_t WiFiServer::begin(uint8_t opt)
+uint8_t Adafruit_WINC1500Server::begin(uint8_t opt)
 {
 	struct sockaddr_in addr;
 
@@ -84,7 +84,7 @@ uint8_t WiFiServer::begin(uint8_t opt)
 	return 1;
 }
 
-WiFiClient WiFiServer::available(uint8_t* status)
+WiFiClient Adafruit_WINC1500Server::available(uint8_t* status)
 {
 	uint32_t flag;
 	
@@ -102,17 +102,17 @@ WiFiClient WiFiServer::available(uint8_t* status)
 	return WiFiClient();
 }
 
-uint8_t WiFiServer::status() {
+uint8_t Adafruit_WINC1500Server::status() {
 	// Deprecated.
 	return 0;
 }
 
-size_t WiFiServer::write(uint8_t b)
+size_t Adafruit_WINC1500Server::write(uint8_t b)
 {
 	return write(&b, 1);
 }
 
-size_t WiFiServer::write(const uint8_t *buffer, size_t size)
+size_t Adafruit_WINC1500Server::write(const uint8_t *buffer, size_t size)
 {
 	size_t n = 0;
 	WiFiClient *client;

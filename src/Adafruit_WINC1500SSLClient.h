@@ -20,14 +20,14 @@
 #ifndef WIFISSLCLIENT_H
 #define WIFISSLCLIENT_H
 
-#include "WiFiClient.h"
+#include "Adafruit_WINC1500Client.h"
 
-class WiFiSSLClient : public WiFiClient {
+class Adafruit_WINC1500SSLClient : public Adafruit_WINC1500Client {
 
 public:
-	WiFiSSLClient();
-	WiFiSSLClient(uint8_t sock, uint8_t parentsock = 0);
-	WiFiSSLClient(const WiFiSSLClient& other);
+	Adafruit_WINC1500SSLClient();
+	Adafruit_WINC1500SSLClient(uint8_t sock, uint8_t parentsock = 0);
+	Adafruit_WINC1500SSLClient(const Adafruit_WINC1500SSLClient& other);
 
 	virtual int connect(IPAddress ip, uint16_t port);
 	virtual int connect(const char* host, uint16_t port);

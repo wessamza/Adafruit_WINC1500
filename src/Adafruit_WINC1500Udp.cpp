@@ -24,15 +24,15 @@ extern "C" {
 }
 
 #include <string.h>
-#include "WiFi101.h"
-#include "WiFiUdp.h"
-#include "WiFiClient.h"
-#include "WiFiServer.h"
+#include "Adafruit_WINC1500.h"
+#include "Adafruit_WINC1500Udp.h"
+#include "Adafruit_WINC1500Client.h"
+#include "Adafruit_WINC1500Server.h"
 
 #define READY	(_flag & SOCKET_BUFFER_FLAG_BIND)
 
 /* Constructor. */
-WiFiUDP::WiFiUDP()
+Adafruit_WINC1500UDP::Adafruit_WINC1500UDP()
 {
 	_socket = -1;
 	_flag = 0;
@@ -43,8 +43,8 @@ WiFiUDP::WiFiUDP()
 	_rcvIP = 0;
 }
 
-/* Start WiFiUDP socket, listening at local port PORT */
-uint8_t WiFiUDP::begin(uint16_t port)
+/* Start Adafruit_WINC1500UDP socket, listening at local port PORT */
+uint8_t Adafruit_WINC1500UDP::begin(uint16_t port)
 {
 	struct sockaddr_in addr;
 	uint32 u32EnableCallbacks = 0;
@@ -94,7 +94,7 @@ uint8_t WiFiUDP::begin(uint16_t port)
 
 /* return number of bytes available in the current packet,
    will return zero if parsePacket hasn't been called yet */
-int WiFiUDP::available()
+int Adafruit_WINC1500UDP::available()
 {
 	m2m_wifi_handle_events(NULL);
 	
@@ -111,8 +111,8 @@ int WiFiUDP::available()
 	return 0;
  }
 
-/* Release any resources being used by this WiFiUDP instance */
-void WiFiUDP::stop()
+/* Release any resources being used by this Adafruit_WINC1500UDP instance */
+void Adafruit_WINC1500UDP::stop()
 {
 	if (_socket < 0)
 		return;
@@ -122,10 +122,10 @@ void WiFiUDP::stop()
 	_socket = -1;
 }
 
-int WiFiUDP::beginPacket(const char *host, uint16_t port)
+int Adafruit_WINC1500UDP::beginPacket(const char *host, uint16_t port)
 {
 	IPAddress ip;
-	if (WiFi.hostByName(host, ip)) {
+	if (Adafruit_WINC1500.hostByName(host, ip)) {
 		_sndIP = ip;
 		_sndPort = port;
 	}
@@ -133,7 +133,7 @@ int WiFiUDP::beginPacket(const char *host, uint16_t port)
 	return 0;
 }
 
-int WiFiUDP::beginPacket(IPAddress ip, uint16_t port)
+int Adafruit_WINC1500UDP::beginPacket(IPAddress ip, uint16_t port)
 {
 	_sndIP = ip;
 	_sndPort = port;
@@ -141,17 +141,17 @@ int WiFiUDP::beginPacket(IPAddress ip, uint16_t port)
 	return 1;
 }
 
-int WiFiUDP::endPacket()
+int Adafruit_WINC1500UDP::endPacket()
 {
 	return 1;
 }
 
-size_t WiFiUDP::write(uint8_t byte)
+size_t Adafruit_WINC1500UDP::write(uint8_t byte)
 {
   return write(&byte, 1);
 }
 
-size_t WiFiUDP::write(const uint8_t *buffer, size_t size)
+size_t Adafruit_WINC1500UDP::write(const uint8_t *buffer, size_t size)
 {
 	struct sockaddr_in addr;
 
@@ -175,7 +175,7 @@ size_t WiFiUDP::write(const uint8_t *buffer, size_t size)
 	return size;
 }
 
-int WiFiUDP::parsePacket()
+int Adafruit_WINC1500UDP::parsePacket()
 {
 	m2m_wifi_handle_events(NULL);
 	
@@ -195,7 +195,7 @@ int WiFiUDP::parsePacket()
 	return 0;
 }
 
-int WiFiUDP::read()
+int Adafruit_WINC1500UDP::read()
 {
 	uint8_t b;
 
@@ -218,7 +218,7 @@ int WiFiUDP::read()
 	return b;
 }
 
-int WiFiUDP::read(unsigned char* buf, size_t size)
+int Adafruit_WINC1500UDP::read(unsigned char* buf, size_t size)
 {
 	// sizeof(size_t) is architecture dependent
 	// but we need a 16 bit data type here
@@ -252,7 +252,7 @@ int WiFiUDP::read(unsigned char* buf, size_t size)
 	return size_tmp;
 }
 
-int WiFiUDP::peek()
+int Adafruit_WINC1500UDP::peek()
 {
 	if (!available())
 		return -1;
@@ -260,18 +260,18 @@ int WiFiUDP::peek()
 	return _buffer[_tail];
 }
 
-void WiFiUDP::flush()
+void Adafruit_WINC1500UDP::flush()
 {
 	while (available())
 		read();
 }
 
-IPAddress  WiFiUDP::remoteIP()
+IPAddress  Adafruit_WINC1500UDP::remoteIP()
 {
 	return _rcvIP;
 }
 
-uint16_t  WiFiUDP::remotePort()
+uint16_t  Adafruit_WINC1500UDP::remotePort()
 {
 	return _rcvPort;
 }
