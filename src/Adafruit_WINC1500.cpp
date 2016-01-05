@@ -644,6 +644,10 @@ uint8_t Adafruit_WINC1500::status()
 	return _status;
 }
 
+void Adafruit_WINC1500::setGPIO(uint8_t g, boolean val) {
+  m2m_periph_gpio_set_val(g, val);
+}
+
 int Adafruit_WINC1500::hostByName(const char* aHostname, IPAddress& aResult)
 {
 	// Network led ON.

@@ -131,6 +131,7 @@ public:
 	uint8_t encryptionType(uint8_t pos);
 
 	uint8_t status();
+	void setGPIO(uint8_t g, boolean val);
 
 	int hostByName(const char* hostname, IPAddress& result);
 	int hostByName(const String &hostname, IPAddress& result) { return hostByName(hostname.c_str(), result); }
