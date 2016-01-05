@@ -1,0 +1,18 @@
+WiFi101 0.6.0 - 2015.11.27
+
+* Fixed bug with AVR boards when Web Server is used
+
+* Fixed UDP read bug on AVR Boards
+* Added missing inlcude for SSL Client
+* Fixed peek() function
+* Fixed some examples
+
+WiFi101 0.5.1 - 2015.10.06
+
+* Improved support for AVR Boards (Uno, Mega, Leonardo, etc.) and
+  ARM based boards (Due and Zero).
+
+WiFi101 0.5.0 - 2015.10.01
+
+* Initial release
+

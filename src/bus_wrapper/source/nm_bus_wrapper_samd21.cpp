@@ -45,6 +45,18 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+/*
+ * Variants may define an alternative SPI instace to use for WiFi101.
+ * If not defined the following defaults are used:
+ *   WINC1501_SPI    - SPI
+ */
+#if !defined(WINC1501_SPI)
+  #define WINC1501_SPI SPI
+#endif
+
+// make CS pin configurable by 'extern'ing it
+extern uint8_t CONF_WINC_CS_PIN;
+
 extern "C" {
 
 #include "bsp/include/nm_bsp.h"
@@ -83,11 +95,11 @@ static sint8 spi_rw(uint8* pu8Mosi, uint8* pu8Miso, uint16 u16Sz)
 		return M2M_ERR_BUS_FAIL;
 	}
 
-	SPI.beginTransaction(wifi_SPISettings);
+	WINC1501_SPI.beginTransaction(wifi_SPISettings);
 	digitalWrite(CONF_WINC_CS_PIN, LOW);
 
 	while (u16Sz) {
-		*pu8Miso = SPI.transfer(*pu8Mosi);
+		*pu8Miso = WINC1501_SPI.transfer(*pu8Mosi);
 			
 		u16Sz--;
 		if (!u8SkipMiso)
@@ -97,7 +109,7 @@ static sint8 spi_rw(uint8* pu8Mosi, uint8* pu8Miso, uint16 u16Sz)
 	}
 
 	digitalWrite(CONF_WINC_CS_PIN, HIGH);
-	SPI.endTransaction();
+	WINC1501_SPI.endTransaction();
 
 	return M2M_SUCCESS;
 }
@@ -117,7 +129,7 @@ sint8 nm_bus_init(void * /* pvInitValue */)
 	sint8 result = M2M_SUCCESS;
 
 	/* Configure SPI peripheral. */
-	SPI.begin();
+	WINC1501_SPI.begin();
 	
 	/* Configure CS PIN. */
 	pinMode(CONF_WINC_CS_PIN, OUTPUT);
@@ -171,7 +183,7 @@ sint8 nm_bus_ioctl(uint8 u8Cmd, void* pvParameter)
 */
 sint8 nm_bus_deinit(void)
 {
-	SPI.end();
+	WINC1501_SPI.end();
 	return 0;
 }
 

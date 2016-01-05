@@ -37,16 +37,27 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 		case M2M_WIFI_RESP_CON_STATE_CHANGED:
 		{
 			tstrM2mWifiStateChanged *pstrWifiState = (tstrM2mWifiStateChanged *)pvMsg;
-			if (pstrWifiState->u8CurrState == M2M_WIFI_DISCONNECTED) {
+			if (pstrWifiState->u8CurrState == M2M_WIFI_CONNECTED) {
+				//SERIAL_PORT_MONITOR.println("wifi_cb: M2M_WIFI_RESP_CON_STATE_CHANGED: CONNECTED");
+				if (WiFi._mode == WL_STA_MODE && !WiFi._dhcp) {
+					WiFi._status = WL_CONNECTED;
+
+					// WiFi led ON.
+					m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 0);
+				}
+			} else if (pstrWifiState->u8CurrState == M2M_WIFI_DISCONNECTED) {
 				//SERIAL_PORT_MONITOR.println("wifi_cb: M2M_WIFI_RESP_CON_STATE_CHANGED: DISCONNECTED");
 				if (WiFi._mode == WL_STA_MODE) {
 					WiFi._status = WL_DISCONNECTED;
-					WiFi._localip = 0;
-					WiFi._submask = 0;
-					WiFi._gateway = 0;
+					if (WiFi._dhcp) {
+						WiFi._localip = 0;
+						WiFi._submask = 0;
+						WiFi._gateway = 0;
+					}
 				}
-				// WiFi led OFF.
+				// WiFi led OFF (rev A then rev B).
 				m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 1);
+				m2m_periph_gpio_set_val(M2M_PERIPH_GPIO4, 1);
 			}
 		}
 		break;
@@ -61,8 +72,9 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 				
 				WiFi._status = WL_CONNECTED;
 
-				// WiFi led ON.
+				// WiFi led ON (rev A then rev B).
 				m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 0);
+				m2m_periph_gpio_set_val(M2M_PERIPH_GPIO4, 0);
 			}
 			/*uint8_t *pu8IPAddress = (uint8_t *)pvMsg;
 			SERIAL_PORT_MONITOR.print("wifi_cb: M2M_WIFI_REQ_DHCP_CONF: IP is ");
@@ -172,9 +184,9 @@ int Adafruit_WINC1500::init()
 	param.pfAppWifiCb = wifi_cb;
 	ret = m2m_wifi_init(&param);
 	if (M2M_SUCCESS != ret) {
-		// Error led ON (may not work depending on init failure origin).
+		// Error led ON (rev A then rev B).
 		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO18, 0);
-		m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO18, 1);
+		m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO6, 1);
 		return ret;
 	}
 
@@ -187,15 +199,22 @@ int Adafruit_WINC1500::init()
 	_localip = 0;
 	_submask = 0;
 	_gateway = 0;
+	_dhcp = 1;
 	memset(_client, 0, sizeof(Adafruit_WINC1500Client *) * TCP_SOCK_MAX);
 
-	// Initialize IO expander (LED control).
+	// Initialize IO expander LED control (rev A then rev B)..
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 1);
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO18, 1);
 	m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO15, 1);
 	m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO16, 1);
 	m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO18, 1);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO4, 1);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 1);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO6, 1);
+	m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO4, 1);
+	m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO5, 1);
+	m2m_periph_gpio_set_dir(M2M_PERIPH_GPIO6, 1);
 
 	return ret;
 }
@@ -229,9 +248,11 @@ uint8_t Adafruit_WINC1500::begin()
 	}
 	
 	// Connect to router:
-	_localip = 0;
-	_submask = 0;
-	_gateway = 0;
+	if (_dhcp) {
+		_localip = 0;
+		_submask = 0;
+		_gateway = 0;
+	}
 	if (m2m_wifi_default_connect() < 0) {
 		_status = WL_CONNECT_FAILED;
 		return _status;
@@ -282,9 +303,11 @@ uint8_t Adafruit_WINC1500::startConnect(const char *ssid, uint8_t u8SecType, con
 	}
 	
 	// Connect to router:
-	_localip = 0;
-	_submask = 0;
-	_gateway = 0;
+	if (_dhcp) {
+		_localip = 0;
+		_submask = 0;
+		_gateway = 0;
+	}
 	if (m2m_wifi_connect(ssid, strlen(ssid), u8SecType, pvAuthInfo, M2M_WIFI_CH_ALL) < 0) {
 		_status = WL_CONNECT_FAILED;
 		return _status;
@@ -343,8 +366,9 @@ uint8_t Adafruit_WINC1500::beginAP(char *ssid, uint8_t channel)
 	_submask = 0x00FFFFFF;
 	_gateway = _localip;
 
-	// WiFi led ON.
+	// WiFi led ON (rev A then rev B).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 0);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO4, 0);
 
 	return _status;
 }
@@ -386,8 +410,9 @@ uint8_t Adafruit_WINC1500::beginProvision(char *ssid, char *url, uint8_t channel
 	_submask = 0x00FFFFFF;
 	_gateway = _localip;
 
-	// WiFi led ON.
+	// WiFi led ON (rev A then rev B).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 0);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO4, 0);
 
 	return _status;
 }
@@ -404,54 +429,33 @@ uint32_t Adafruit_WINC1500::provisioned()
 
 void Adafruit_WINC1500::config(IPAddress local_ip)
 {
-	tstrM2MIPConfig conf;
-
-	conf.u32DNS = 0;
-	conf.u32Gateway = 0;
-	conf.u32StaticIP = (uint32_t)local_ip;
-	conf.u32SubnetMask = 0;
-	m2m_wifi_set_static_ip(&conf);
-	_localip = conf.u32StaticIP;
-	_submask = 0;
-	_gateway = 0;
+	config(local_ip, (uint32_t)0);
 }
 
 void Adafruit_WINC1500::config(IPAddress local_ip, IPAddress dns_server)
 {
-	tstrM2MIPConfig conf;
-
-	conf.u32DNS = (uint32_t)dns_server;
-	conf.u32Gateway = 0;
-	conf.u32StaticIP = (uint32_t)local_ip;
-	conf.u32SubnetMask = 0;
-	m2m_wifi_set_static_ip(&conf);
-	_localip = conf.u32StaticIP;
-	_submask = 0;
-	_gateway = 0;
+	config(local_ip, dns_server, (uint32_t)0);
 }
 
 void Adafruit_WINC1500::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway)
 {
-	tstrM2MIPConfig conf;
-
-	conf.u32DNS = (uint32_t)dns_server;
-	conf.u32Gateway = (uint32_t)gateway;
-	conf.u32StaticIP = (uint32_t)local_ip;
-	conf.u32SubnetMask = 0;
-	m2m_wifi_set_static_ip(&conf);
-	_localip = conf.u32StaticIP;
-	_submask = 0;
-	_gateway = conf.u32Gateway;
+	config(local_ip, dns_server, gateway, (uint32_t)0);
 }
 
 void Adafruit_WINC1500::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet)
 {
 	tstrM2MIPConfig conf;
 
+	if (!_init) {
+		init();
+	}
+
 	conf.u32DNS = (uint32_t)dns_server;
 	conf.u32Gateway = (uint32_t)gateway;
 	conf.u32StaticIP = (uint32_t)local_ip;
 	conf.u32SubnetMask = (uint32_t)subnet;
+	_dhcp = 0;
+	m2m_wifi_enable_dhcp(0); // disable DHCP
 	m2m_wifi_set_static_ip(&conf);
 	_localip = conf.u32StaticIP;
 	_submask = conf.u32SubnetMask;
@@ -462,8 +466,9 @@ void Adafruit_WINC1500::disconnect()
 {
 	m2m_wifi_disconnect();
 
-	// WiFi led OFF.
+	// WiFi led OFF (rev A then rev B).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO15, 1);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO4, 1);
 }
 
 uint8_t *Adafruit_WINC1500::macAddress(uint8_t *mac)
@@ -636,10 +641,6 @@ uint8_t Adafruit_WINC1500::status()
 {
 	if (!_init) {
 		init();
-		if (nmi_get_chipid() == 0x1502b1) {
-			_status = WL_IDLE_STATUS;
-			return _status;
-		}
 	}
 	return _status;
 }
@@ -650,32 +651,43 @@ void Adafruit_WINC1500::setGPIO(uint8_t g, boolean val) {
 
 int Adafruit_WINC1500::hostByName(const char* aHostname, IPAddress& aResult)
 {
-	// Network led ON.
-	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 0);
+	
+	// check if aHostname is already an ipaddress
+	if (aResult.fromString(aHostname)) {
+		// if fromString returns true we have an IP address ready 
+		return 1;
 
-	// Send DNS request:
-	_resolve = 0;
-	if (gethostbyname((uint8 *)aHostname) < 0) {
-		// Network led OFF.
+	} else {
+		// Network led ON (rev A then rev B).
+		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 0);
+		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 0);
+	
+		// Send DNS request:
+		_resolve = 0;
+		if (gethostbyname((uint8 *)aHostname) < 0) {
+			// Network led OFF (rev A then rev B).
+			m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
+			m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 1);
+			return 0;
+		}
+
+		// Wait for connection or timeout:
+		unsigned long start = millis();
+		while (_resolve == 0 && millis() - start < 20000) {
+			m2m_wifi_handle_events(NULL);
+		}
+
+		// Network led OFF (rev A then rev B).
 		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
-		return 0;
+		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 1);
+
+		if (_resolve == 0) {
+			return 0;
+		}
+
+		aResult = _resolve;
+		return 1;
 	}
-
-	// Wait for connection or timeout:
-	unsigned long start = millis();
-	while (_resolve == 0 && millis() - start < 20000) {
-		m2m_wifi_handle_events(NULL);
-	}
-
-	// Network led OFF.
-	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
-
-	if (_resolve == 0) {
-		return 0;
-	}
-
-	aResult = _resolve;
-	return 1;
 }
 
 void Adafruit_WINC1500::refresh(void)

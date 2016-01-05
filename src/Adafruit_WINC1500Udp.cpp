@@ -99,14 +99,7 @@ int Adafruit_WINC1500UDP::available()
 	m2m_wifi_handle_events(NULL);
 	
 	if (_socket != -1) {
-		if (_rcvSize != 0) {
-			if (_head - _tail > _rcvSize) {
-				return _rcvSize;
-			}
-			else {
-				return _head - _tail;
-			}
-		}
+		return _rcvSize;
 	}
 	return 0;
  }
@@ -155,8 +148,9 @@ size_t Adafruit_WINC1500UDP::write(const uint8_t *buffer, size_t size)
 {
 	struct sockaddr_in addr;
 
-	// Network led ON.
+	// Network led ON (rev A then rev B).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 0);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 0);
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = _htons(_sndPort);
@@ -164,13 +158,15 @@ size_t Adafruit_WINC1500UDP::write(const uint8_t *buffer, size_t size)
 
 	if (sendto(_socket, (void *)buffer, size, 0,
 			(struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		// Network led OFF.
+		// Network led OFF (rev A then rev B).
 		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
+		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 1);
 		return 0;
 	}
 
-	// Network led OFF.
+	// Network led OFF (rev A then rev B).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 1);
 
 	return size;
 }
@@ -199,22 +195,10 @@ int Adafruit_WINC1500UDP::read()
 {
 	uint8_t b;
 
-	if (!available())
+	if (read(&b, sizeof(b)) == -1) {
 		return -1;
-
-	b = _buffer[_tail++];
-	_rcvSize -= 1;
-	if (_tail == _head) {
-		_tail = _head = 0;
-		_flag &= ~SOCKET_BUFFER_FLAG_FULL;
-		if (hif_small_xfer) {
-			recvfrom(_socket, _buffer, SOCKET_BUFFER_MTU, 0);
-		}
-		else {
-			recvfrom(_socket, _buffer + SOCKET_BUFFER_UDP_HEADER_SIZE, SOCKET_BUFFER_MTU, 0);			
-		}
-		m2m_wifi_handle_events(NULL);
 	}
+
 	return b;
 }
 
@@ -234,19 +218,24 @@ int Adafruit_WINC1500UDP::read(unsigned char* buf, size_t size)
 
 	for (uint32_t i = 0; i < size_tmp; ++i) {
 		buf[i] = _buffer[_tail++];
-	}
-	_rcvSize -= size_tmp;
-	
-	if (_tail == _head) {
-		_tail = _head = 0;
-		_flag &= ~SOCKET_BUFFER_FLAG_FULL;
-		if (hif_small_xfer) {
-			recvfrom(_socket, _buffer, SOCKET_BUFFER_MTU, 0);
+		_rcvSize--;
+
+		if (_tail == _head) {
+			// the full buffered data has been read, reset head and tail for next transfer
+			_tail = _head = 0;
+
+			// clear the buffer full flag
+			_flag &= ~SOCKET_BUFFER_FLAG_FULL;
+
+			// setup buffer and buffer size to transfer the remainder of the current packet
+			// or next received packet
+			if (hif_small_xfer) {
+				recvfrom(_socket, _buffer, SOCKET_BUFFER_MTU, 0);
+			} else {
+				recvfrom(_socket, _buffer + SOCKET_BUFFER_UDP_HEADER_SIZE, SOCKET_BUFFER_MTU, 0);
+			}
+			m2m_wifi_handle_events(NULL);
 		}
-		else {
-			recvfrom(_socket, _buffer + SOCKET_BUFFER_UDP_HEADER_SIZE, SOCKET_BUFFER_MTU, 0);			
-		}
-		m2m_wifi_handle_events(NULL);
 	}
 
 	return size_tmp;

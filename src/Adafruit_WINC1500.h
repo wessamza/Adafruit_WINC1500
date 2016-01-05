@@ -20,7 +20,7 @@
 #ifndef WIFI_H
 #define WIFI_H
 
-#define WIFI_FIRMWARE_REQUIRED "19.3.0"
+#define WIFI_FIRMWARE_REQUIRED "19.4.4"
 
 #include <Arduino.h>
 
@@ -29,7 +29,9 @@ extern "C" {
 	#include "socket/include/socket.h"
 }
 
+
 #include "Adafruit_WINC1500Client.h"
+#include "Adafruit_WINC1500SSLClient.h"
 #include "Adafruit_WINC1500Server.h"
 
 typedef enum {
@@ -66,6 +68,7 @@ public:
 	uint32_t _localip;
 	uint32_t _submask;
 	uint32_t _gateway;
+	int _dhcp;
 	uint32_t _resolve;
 	byte *_bssid;
 	wl_mode_t _mode;

@@ -93,10 +93,21 @@ Adafruit_WINC1500Client Adafruit_WINC1500Server::available(uint8_t* status)
 		flag = _flag;
 		_flag &= ~SOCKET_BUFFER_FLAG_SPAWN_SOCKET_MSK;
 		_flag &= ~SOCKET_BUFFER_FLAG_SPAWN;
-		 if (status != NULL) {
+		if (status != NULL) {
 			*status = 0;
-		 }
+		}
 		return Adafruit_WINC1500Client(((flag & SOCKET_BUFFER_FLAG_SPAWN_SOCKET_MSK) >> SOCKET_BUFFER_FLAG_SPAWN_SOCKET_POS), _socket + 1);
+	} else {
+		Adafruit_WINC1500Client *client;
+
+		for (int sock = 0; sock < TCP_SOCK_MAX; sock++) {
+			client = WiFi._client[sock];
+			if (client && client->_flag & SOCKET_BUFFER_FLAG_CONNECTED) {
+				if (((client->_flag >> SOCKET_BUFFER_FLAG_PARENT_SOCKET_POS) & 0xff) == (uint8)_socket) {
+					return *client;
+				}
+			}
+		}
 	}
 
 	return Adafruit_WINC1500Client();

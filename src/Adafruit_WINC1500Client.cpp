@@ -41,7 +41,7 @@ Adafruit_WINC1500Client::Adafruit_WINC1500Client(uint8_t sock, uint8_t parentsoc
 	_socket = sock;
 	_flag = SOCKET_BUFFER_FLAG_CONNECTED;
 	if (parentsock) {
-		_flag |= (parentsock - 1) << SOCKET_BUFFER_FLAG_PARENT_SOCKET_POS;
+		_flag |= ((uint32_t)(parentsock - 1)) << SOCKET_BUFFER_FLAG_PARENT_SOCKET_POS;
 	}
 	_head = 0;
 	_tail = 0;
@@ -64,8 +64,8 @@ Adafruit_WINC1500Client::Adafruit_WINC1500Client(const Adafruit_WINC1500Client& 
 {
 	_socket = other._socket;
 	_flag = other._flag;
-	_head = 0;
-	_tail = 0;
+	_head = other._head;
+	_tail = other._tail;
 	for (int sock = 0; sock < TCP_SOCK_MAX; sock++) {
 		if (WiFi._client[sock] == this)
 			WiFi._client[sock] = 0;
@@ -169,8 +169,9 @@ size_t Adafruit_WINC1500Client::write(const uint8_t *buf, size_t size)
 		return 0;
 	}
 
-	// Network led ON.
+	// Network led ON (rev A then rev B).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 0);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 0);
 
 	m2m_wifi_handle_events(NULL);
 
@@ -179,13 +180,15 @@ size_t Adafruit_WINC1500Client::write(const uint8_t *buf, size_t size)
 		if (err != SOCK_ERR_BUFFER_FULL) {
 			setWriteError();
 			m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
+			m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 1);
 			return 0;
 		}
 		m2m_wifi_handle_events(NULL);
 	}
 	
-	// Network led OFF.
+	// Network led OFF (rev A then rev B).
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 1);
+	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 1);
 			
 	return size;
 }
@@ -204,15 +207,8 @@ int Adafruit_WINC1500Client::read()
 {
 	uint8_t b;
 
-	if (!available())
+	if (read(&b, sizeof(b)) == -1) {
 		return -1;
-
-	b = _buffer[_tail++];
-	if (_tail == _head) {
-		_tail = _head = 0;
-		_flag &= ~SOCKET_BUFFER_FLAG_FULL;
-		recv(_socket, _buffer, SOCKET_BUFFER_MTU, 0);
-		m2m_wifi_handle_events(NULL);
 	}
 
 	return b;
@@ -248,7 +244,10 @@ int Adafruit_WINC1500Client::read(uint8_t* buf, size_t size)
 
 int Adafruit_WINC1500Client::peek()
 {
-	return read();
+	if (!available())
+		return -1;
+
+	return _buffer[_tail];
 }
 
 void Adafruit_WINC1500Client::flush()
