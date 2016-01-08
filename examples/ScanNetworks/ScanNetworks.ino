@@ -16,7 +16,15 @@
 
 
 #include <SPI.h>
-#include <WiFi101.h>
+#include <Adafruit_WINC1500.h>
+
+/************************* WiFI Setup *****************************/
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC
+
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 
 void setup() {
   //Initialize serial and wait for port to open:

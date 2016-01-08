@@ -49,6 +49,7 @@
  * Variants may define an alternative SPI instace to use for WiFi101.
  * If not defined the following defaults are used:
  *   WINC1501_SPI    - SPI
+ *   WINC1501_CS_PIN - pin 10
  */
 #if !defined(WINC1501_SPI)
   #define WINC1501_SPI SPI
@@ -56,6 +57,10 @@
 
 // make CS pin configurable by 'extern'ing it
 extern uint8_t CONF_WINC_CS_PIN;
+
+#if !defined(WINC1501_SPI_CS_PIN)
+  #define WINC1501_SPI_CS_PIN CONF_WINC_CS_PIN
+#endif
 
 extern "C" {
 
@@ -96,7 +101,7 @@ static sint8 spi_rw(uint8* pu8Mosi, uint8* pu8Miso, uint16 u16Sz)
 	}
 
 	WINC1501_SPI.beginTransaction(wifi_SPISettings);
-	digitalWrite(CONF_WINC_CS_PIN, LOW);
+	digitalWrite(WINC1501_SPI_CS_PIN, LOW);
 
 	while (u16Sz) {
 		*pu8Miso = WINC1501_SPI.transfer(*pu8Mosi);
@@ -108,7 +113,7 @@ static sint8 spi_rw(uint8* pu8Mosi, uint8* pu8Miso, uint16 u16Sz)
 			pu8Mosi++;
 	}
 
-	digitalWrite(CONF_WINC_CS_PIN, HIGH);
+	digitalWrite(WINC1501_SPI_CS_PIN, HIGH);
 	WINC1501_SPI.endTransaction();
 
 	return M2M_SUCCESS;
@@ -132,8 +137,8 @@ sint8 nm_bus_init(void * /* pvInitValue */)
 	WINC1501_SPI.begin();
 	
 	/* Configure CS PIN. */
-	pinMode(CONF_WINC_CS_PIN, OUTPUT);
-	digitalWrite(CONF_WINC_CS_PIN, HIGH);
+	pinMode(WINC1501_SPI_CS_PIN, OUTPUT);
+	digitalWrite(WINC1501_SPI_CS_PIN, HIGH);
 
 	/* Reset WINC1500. */
 	nm_bsp_reset();
