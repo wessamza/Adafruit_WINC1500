@@ -9,7 +9,15 @@
  * This code is in the public domain.
  */
 #include <SPI.h>
-#include <WiFi101.h>
+#include <Adafruit_WINC1500.h>
+
+/************************* WiFI Setup *****************************/
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC
+
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 
 void setup() {
   // Initialize serial
@@ -19,11 +27,11 @@ void setup() {
   }
 
   // Print a welcome message
-  Serial.println("WiFi101 firmware check.");
+  Serial.println("WINC1500 firmware check.");
   Serial.println();
 
   // Check for the presence of the shield
-  Serial.print("WiFi101 shield: ");
+  Serial.print("WINC1500: ");
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("NOT PRESENT");
     return; // don't continue
@@ -45,7 +53,7 @@ void setup() {
     Serial.println("Check result: PASSED");
   } else {
     Serial.println("Check result: NOT PASSED");
-    Serial.println(" - The firmware version on the shield do not match the");
+    Serial.println(" - The firmware version on the WINC1500 do not match the");
     Serial.println("   version required by the library, you may experience");
     Serial.println("   issues or failures.");
   }
@@ -54,4 +62,3 @@ void setup() {
 void loop() {
   // do nothing
 }
-

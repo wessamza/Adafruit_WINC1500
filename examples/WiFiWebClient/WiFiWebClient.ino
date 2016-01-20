@@ -21,29 +21,44 @@
 
 
 #include <SPI.h>
-#include <WiFi101.h>
+#include <Adafruit_WINC1500.h>
 
-char ssid[] = "yourNetwork"; //  your network SSID (name)
-char pass[] = "secretPassword";    // your network password (use for WPA, or use as key for WEP)
-int keyIndex = 0;            // your network key Index number (needed only for WEP)
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
+
+// Default Hardware SPI (SCK/MOSI/MISO), SS -> #10, INT -> #7, RST -> #5, EN -> 3-5V
+//Adafruit_WINC1500 WiFi;
+
+
+char ssid[] = "yournetwork";     //  your network SSID (name)
+char pass[] = "yourpassword";    // your network password (use for WPA, or use as key for WEP)
+int keyIndex = 0;                // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:
-//IPAddress server(74,125,232,128);  // numeric IP for Google (no DNS)
-char server[] = "www.google.com";    // name address for Google (using DNS)
+//IPAddress server(141,101,112,175);  // numeric IP for Google (no DNS)
+char server[] = "www.adafruit.com";    // name address for Google (using DNS)
+#define webpage "/testwifi/index.html"
+
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server
 // that you want to connect to (port 80 is default for HTTP):
-WiFiClient client;
+Adafruit_WINC1500Client client;
 
 void setup() {
-  //Initialize serial and wait for port to open:
-  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+
+  //Initialize serial and wait for port to open:
+  Serial.begin(9600);
+  
+  Serial.println("WINC1500 Web client test");
 
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -70,8 +85,10 @@ void setup() {
   if (client.connect(server, 80)) {
     Serial.println("connected to server");
     // Make a HTTP request:
-    client.println("GET /search?q=arduino HTTP/1.1");
-    client.println("Host: www.google.com");
+    client.print("GET ");
+    client.print(webpage);
+    client.println(" HTTP/1.1");
+    client.print("Host: "); client.println(server);
     client.println("Connection: close");
     client.println();
   }
@@ -113,8 +130,4 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
-
-
-
-
 
