@@ -1,8 +1,8 @@
 /*
   Web client
 
- This sketch connects to a website (http://www.google.com)
- using a WiFi shield.
+ This sketch connects to a website (http://www.adafruit.com)
+ using a WINC1500
 
  This example is written for a network using WPA encryption. For
  WEP or WPA, change the Wifi.begin() call accordingly.
@@ -10,8 +10,8 @@
  This example is written for a network using WPA encryption. For
  WEP or WPA, change the Wifi.begin() call accordingly.
 
- Circuit:
- * WiFi shield attached
+ * Circuit:
+ * - Feather M0 WiFi (WINC1500), WiFi 101 shield, or WINC1500 Breakout
 
  created 13 July 2010
  by dlf (Metodo2 srl)
@@ -26,6 +26,7 @@
 #define WINC_CS   8
 #define WINC_IRQ  7
 #define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC and comment this out
 
 Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 
@@ -51,6 +52,11 @@ char server[] = "www.adafruit.com";    // name address for Google (using DNS)
 Adafruit_WINC1500Client client;
 
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
+
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -68,15 +74,20 @@ void setup() {
   }
 
   // attempt to connect to Wifi network:
-  while (status != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection:
-    delay(10000);
+    uint8_t timeout = 10;
+    while (timeout && (WiFi.status() != WL_CONNECTED)) {
+      timeout--;
+      delay(1000);
+    }
   }
+
   Serial.println("Connected to wifi");
   printWifiStatus();
 

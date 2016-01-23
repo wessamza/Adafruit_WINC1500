@@ -1,9 +1,8 @@
 /*
- * This example check if the firmware loaded on the Wifi101
- * shield is updated.
+ * This example check if the firmware loaded on the ATWINC1500 is updated.
  *
  * Circuit:
- * - WiFi101 Shield attached
+ * - Feather M0 WiFi (WINC1500), WiFi 101 shield, or WINC1500 Breakout
  *
  * Created 29 July 2015 by Cristian Maglie
  * This code is in the public domain.
@@ -15,11 +14,19 @@
 #define WINC_CS   8
 #define WINC_IRQ  7
 #define WINC_RST  4
-#define WINC_EN   2     // or, tie EN to VCC
+#define WINC_EN   2     // or, tie EN to VCC and comment this out
 
 Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 
+// Default Hardware SPI (SCK/MOSI/MISO), SS -> #10, INT -> #7, RST -> #5, EN -> 3-5V
+//Adafruit_WINC1500 WiFi;
+
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
+
   // Initialize serial
   Serial.begin(9600);
   while (!Serial) {
