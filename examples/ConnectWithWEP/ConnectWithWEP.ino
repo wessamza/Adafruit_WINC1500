@@ -14,8 +14,8 @@
  D0D0DEADF00DABBADEAFBEADED will work because it's 26 characters,
  all in the 0-9, A-F range.
 
- Circuit:
- * WiFi shield attached
+ * Circuit:
+ * - Feather M0 WiFi (WINC1500), WiFi 101 shield, or WINC1500 Breakout
 
  created 13 July 2010
  by dlf (Metodo2 srl)
@@ -23,7 +23,17 @@
  by Tom Igoe
  */
 #include <SPI.h>
-#include <WiFi101.h>
+#include <Adafruit_WINC1500.h>
+
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC and comment this out
+
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
+
+// Default Hardware SPI (SCK/MOSI/MISO), SS -> #10, INT -> #7, RST -> #5, EN -> 3-5V
+//Adafruit_WINC1500 WiFi;
 
 char ssid[] = "yourNetwork";                     // your network SSID (name)
 char key[] = "D0D0DEADF00DABBADEAFBEADED";       // your network key
@@ -31,6 +41,11 @@ int keyIndex = 0;                                // your network key Index numbe
 int status = WL_IDLE_STATUS;                     // the Wifi radio's status
 
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
+
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
@@ -45,13 +60,17 @@ void setup() {
   }
 
   // attempt to connect to Wifi network:
-  while ( status != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     Serial.print("Attempting to connect to WEP network, SSID: ");
     Serial.println(ssid);
     status = WiFi.begin(ssid, keyIndex, key);
 
     // wait 10 seconds for connection:
-    delay(10000);
+    uint8_t timeout = 10;
+    while (timeout && (WiFi.status() != WL_CONNECTED)) {
+      timeout--;
+      delay(1000);
+    }
   }
 
   // once you are connected :
@@ -122,6 +141,4 @@ void printCurrentNet() {
   Serial.println(encryption, HEX);
   Serial.println();
 }
-
-
 
