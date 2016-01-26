@@ -700,5 +700,10 @@ int8_t Adafruit_WINC1500::setSleepMode(uint8_t pstype, uint8_t bcasten) {
   return m2m_wifi_set_sleep_mode(pstype, bcasten);
 }
 
+int8_t Adafruit_WINC1500::requestSleep(uint32_t ms) {
+  return m2m_wifi_request_sleep(ms);
+}
+
+
 // let us define in main program, with optional pins!
 //Adafruit_WINC1500 WiFi;

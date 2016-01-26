@@ -14,8 +14,8 @@
  D0D0DEADF00DABBADEAFBEADED will work because it's 26 characters,
  all in the 0-9, A-F range.
 
- Circuit:
- * WiFi shield attached
+ * Circuit:
+ * - Feather M0 WiFi (WINC1500), WiFi 101 shield, or WINC1500 Breakout
 
  created 13 July 2010
  by dlf (Metodo2 srl)
@@ -69,13 +69,17 @@ void setup() {
   }
 
   // attempt to connect to Wifi network:
-  while ( status != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     Serial.print("Attempting to connect to WEP network, SSID: ");
     Serial.println(ssid);
     status = WiFi.begin(ssid, keyIndex, key);
 
     // wait 10 seconds for connection:
-    delay(10000);
+    uint8_t timeout = 10;
+    while (timeout && (WiFi.status() != WL_CONNECTED)) {
+      timeout--;
+      delay(1000);
+    }
   }
 
   // once you are connected :
