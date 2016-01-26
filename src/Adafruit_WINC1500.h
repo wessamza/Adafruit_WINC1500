@@ -141,6 +141,7 @@ public:
 
 	void refresh(void);
 
+	int8_t setSleepMode(uint8_t pstype, uint8_t bcasten);
 private:
 	int _init;
 	char _version[9];
