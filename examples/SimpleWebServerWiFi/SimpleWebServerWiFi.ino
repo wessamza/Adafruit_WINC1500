@@ -21,18 +21,47 @@
  by Tom Igoe
  */
 #include <SPI.h>
-#include <WiFi101.h>
+#include <Adafruit_WINC1500.h>
+
+// Define the WINC1500 board connections below.
+// If you're following the Adafruit WINC1500 board
+// guide you don't need to modify these:
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC and comment this out
+// The SPI pins of the WINC1500 (SCK, MOSI, MISO) should be
+// connected to the hardware SPI port of the Arduino.
+// On an Uno or compatible these are SCK = #13, MISO = #12, MOSI = #11.
+// On an Arduino Zero use the 6-pin ICSP header, see:
+//   https://www.arduino.cc/en/Reference/SPI
+
+// Setup the WINC1500 connection with the pins above and the default hardware SPI.
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
+
+// Or just use hardware SPI (SCK/MOSI/MISO) and defaults, SS -> #10, INT -> #7, RST -> #5, EN -> 3-5V
+//Adafruit_WINC1500 WiFi;
+
+#define LED_PIN  9  // This example assumes you have a LED connected to pin 9
+                    // (with a resistor to limit current!).  Connect LED anode
+                    // (longer leg) to pin 9, then LED cathode (shorter pin)
+                    // through a resistor (~300-1k ohm) to ground.
 
 char ssid[] = "yourNetwork";      //  your network SSID (name)
 char pass[] = "secretPassword";   // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
-WiFiServer server(80);
+Adafruit_WINC1500Server server(80);
 
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
+
   Serial.begin(9600);      // initialize serial communication
-  pinMode(9, OUTPUT);      // set the LED pin mode
+  pinMode(LED_PIN, OUTPUT);      // set the LED pin mode
 
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -56,7 +85,7 @@ void setup() {
 
 
 void loop() {
-  WiFiClient client = server.available();   // listen for incoming clients
+  Adafruit_WINC1500Client client = server.available();   // listen for incoming clients
 
   if (client) {                             // if you get a client,
     Serial.println("new client");           // print a message out the serial port
@@ -77,8 +106,8 @@ void loop() {
             client.println();
 
             // the content of the HTTP response follows the header:
-            client.print("Click <a href=\"/H\">here</a> turn the LED on pin 9 on<br>");
-            client.print("Click <a href=\"/L\">here</a> turn the LED on pin 9 off<br>");
+            client.print("Click <a href=\"/H\">here</a> turn the LED on<br>");
+            client.print("Click <a href=\"/L\">here</a> turn the LED off<br>");
 
             // The HTTP response ends with another blank line:
             client.println();
@@ -95,10 +124,10 @@ void loop() {
 
         // Check to see if the client request was "GET /H" or "GET /L":
         if (currentLine.endsWith("GET /H")) {
-          digitalWrite(9, HIGH);               // GET /H turns the LED on
+          digitalWrite(LED_PIN, HIGH);               // GET /H turns the LED on
         }
         if (currentLine.endsWith("GET /L")) {
-          digitalWrite(9, LOW);                // GET /L turns the LED off
+          digitalWrite(LED_PIN, LOW);                // GET /L turns the LED off
         }
       }
     }

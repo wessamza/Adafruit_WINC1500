@@ -18,8 +18,27 @@
  */
 
 #include <SPI.h>
-#include <WiFi101.h>
- 
+#include <Adafruit_WINC1500.h>
+
+// Define the WINC1500 board connections below.
+// If you're following the Adafruit WINC1500 board
+// guide you don't need to modify these:
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC and comment this out
+// The SPI pins of the WINC1500 (SCK, MOSI, MISO) should be
+// connected to the hardware SPI port of the Arduino.
+// On an Uno or compatible these are SCK = #13, MISO = #12, MOSI = #11.
+// On an Arduino Zero use the 6-pin ICSP header, see:
+//   https://www.arduino.cc/en/Reference/SPI
+
+// Setup the WINC1500 connection with the pins above and the default hardware SPI.
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
+
+// Or just use hardware SPI (SCK/MOSI/MISO) and defaults, SS -> #10, INT -> #7, RST -> #5, EN -> 3-5V
+//Adafruit_WINC1500 WiFi;
+
 char ssid[] = "yourNetwork";      //  your network SSID (name)
 char pass[] = "secretPassword";   // your network password
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
@@ -27,16 +46,24 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 int status = WL_IDLE_STATUS;
 
 // Initialize the Wifi client library
-WiFiClient client;
+Adafruit_WINC1500Client client;
 
 // server address:
-char server[] = "www.arduino.cc";
-//IPAddress server(64,131,82,241);
+// if you don't want to use DNS (and reduce your sketch size)
+// use the numeric IP instead of the name for the server:
+//IPAddress server(141,101,112,175);  // numeric IP for test page (no DNS)
+char server[] = "www.adafruit.com";    // domain name for test page (using DNS)
+#define webpage "/testwifi/index.html"  // path to test page
 
 unsigned long lastConnectionTime = 0;            // last time you connected to the server, in milliseconds
 const unsigned long postingInterval = 10L * 1000L; // delay between updates, in milliseconds
 
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
+
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
@@ -90,10 +117,11 @@ void httpRequest() {
   // if there's a successful connection:
   if (client.connect(server, 80)) {
     Serial.println("connecting...");
-    // send the HTTP PUT request:
-    client.println("GET /latest.txt HTTP/1.1");
-    client.println("Host: www.arduino.cc");
-    client.println("User-Agent: ArduinoWiFi/1.1");
+    // Make a HTTP request:
+    client.print("GET ");
+    client.print(webpage);
+    client.println(" HTTP/1.1");
+    client.print("Host: "); client.println(server);
     client.println("Connection: close");
     client.println();
 
@@ -123,5 +151,3 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
-
-

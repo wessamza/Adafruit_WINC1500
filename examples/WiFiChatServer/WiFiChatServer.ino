@@ -20,7 +20,26 @@
  */
 
 #include <SPI.h>
-#include <WiFi101.h>
+#include <Adafruit_WINC1500.h>
+
+// Define the WINC1500 board connections below.
+// If you're following the Adafruit WINC1500 board
+// guide you don't need to modify these:
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC and comment this out
+// The SPI pins of the WINC1500 (SCK, MOSI, MISO) should be
+// connected to the hardware SPI port of the Arduino.
+// On an Uno or compatible these are SCK = #13, MISO = #12, MOSI = #11.
+// On an Arduino Zero use the 6-pin ICSP header, see:
+//   https://www.arduino.cc/en/Reference/SPI
+
+// Setup the WINC1500 connection with the pins above and the default hardware SPI.
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
+
+// Or just use hardware SPI (SCK/MOSI/MISO) and defaults, SS -> #10, INT -> #7, RST -> #5, EN -> 3-5V
+//Adafruit_WINC1500 WiFi;
 
 char ssid[] = "yourNetwork"; //  your network SSID (name)
 char pass[] = "secretPassword";    // your network password (use for WPA, or use as key for WEP)
@@ -29,11 +48,16 @@ int keyIndex = 0;            // your network key Index number (needed only for W
 
 int status = WL_IDLE_STATUS;
 
-WiFiServer server(23);
+Adafruit_WINC1500Server server(23);
 
 boolean alreadyConnected = false; // whether or not the client was connected previously
 
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
+
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
@@ -62,12 +86,14 @@ void setup() {
   server.begin();
   // you're connected now, so print out the status:
   printWifiStatus();
+
+  Serial.println("Server is listening on TCP port 23...");
 }
 
 
 void loop() {
   // wait for a new client:
-  WiFiClient client = server.available();
+  Adafruit_WINC1500Client client = server.available();
 
 
   // when the client sends the first byte, say hello:
@@ -108,5 +134,3 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
-
-
