@@ -44,7 +44,7 @@ Adafruit_WINC1500UDP::Adafruit_WINC1500UDP()
 }
 
 /* Start Adafruit_WINC1500UDP socket, listening at local port PORT */
-uint8_t Adafruit_WINC1500UDP::begin(uint16_t port)
+uint8_t Adafruit_WINC1500UDP::begin(uint16_t port, uint32_t multicastAddr)
 {
 	struct sockaddr_in addr;
 	uint32 u32EnableCallbacks = 0;
@@ -70,13 +70,24 @@ uint8_t Adafruit_WINC1500UDP::begin(uint16_t port)
 	socketBufferRegister(_socket, &_flag, &_head, &_tail, (uint8 *)_buffer);
 	setsockopt(_socket, SOL_SOCKET, SO_SET_UDP_SEND_CALLBACK, &u32EnableCallbacks, 0);
 
+	// Set multicast address option if a multicast address was specified.
+	if (multicastAddr != 0) {
+		multicastAddr = _htonl(multicastAddr);
+		if (setsockopt(_socket, SOL_SOCKET, IP_ADD_MEMBERSHIP, &multicastAddr, sizeof(multicastAddr)) < 0) {
+			// Failed to set the multicast address option.
+			close(_socket);
+			_socket = -1;
+			return 0;
+		}
+	}
+
 	// Bind socket:
 	if (bind(_socket, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
 		close(_socket);
 		_socket = -1;
 		return 0;
 	}
-	
+
 	// Wait for connection or timeout:
 	unsigned long start = millis();
 	while (!READY && millis() - start < 2000) {
@@ -97,7 +108,7 @@ uint8_t Adafruit_WINC1500UDP::begin(uint16_t port)
 int Adafruit_WINC1500UDP::available()
 {
 	m2m_wifi_handle_events(NULL);
-	
+
 	if (_socket != -1) {
 		return _rcvSize;
 	}
@@ -109,7 +120,7 @@ void Adafruit_WINC1500UDP::stop()
 {
 	if (_socket < 0)
 		return;
-	
+
 	socketBufferUnregister(_socket);
 	close(_socket);
 	_socket = -1;
@@ -130,7 +141,7 @@ int Adafruit_WINC1500UDP::beginPacket(IPAddress ip, uint16_t port)
 {
 	_sndIP = ip;
 	_sndPort = port;
-	
+
 	return 1;
 }
 
@@ -174,7 +185,7 @@ size_t Adafruit_WINC1500UDP::write(const uint8_t *buffer, size_t size)
 int Adafruit_WINC1500UDP::parsePacket()
 {
 	m2m_wifi_handle_events(NULL);
-	
+
 	if (_socket != -1) {
 		if (_rcvSize != 0) {
 			return _rcvSize;
@@ -207,11 +218,11 @@ int Adafruit_WINC1500UDP::read(unsigned char* buf, size_t size)
 	// sizeof(size_t) is architecture dependent
 	// but we need a 16 bit data type here
 	uint16_t size_tmp = available();
-	
+
 	if (size_tmp == 0) {
 		return -1;
 	}
-	
+
 	if (size < size_tmp) {
 		size_tmp = size;
 	}
