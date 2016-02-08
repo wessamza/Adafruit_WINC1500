@@ -17,8 +17,26 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <WiFi101.h>
+#include <SPI.h>
+#include <Adafruit_WINC1500.h>
 #include <spi_flash/include/spi_flash.h>
+
+
+// Define the WINC1500 board connections below.
+// If you're following the Adafruit WINC1500 board
+// guide you don't need to modify these:
+#define WINC_CS   8
+#define WINC_IRQ  7
+#define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC
+// The SPI pins of the WINC1500 (SCK, MOSI, MISO) should be
+// connected to the hardware SPI port of the Arduino.
+// On an Uno or compatible these are SCK = #13, MISO = #12, MOSI = #11.
+// On an Arduino Zero use the 6-pin ICSP header, see:
+//   https://www.arduino.cc/en/Reference/SPI
+
+// Setup the WINC1500 connection with the pins above and the default hardware SPI.
+Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 
 typedef struct __attribute__((__packed__)) {
   uint8_t command;
@@ -38,6 +56,11 @@ static const int MAX_PAYLOAD_SIZE = 1024;
 #define CMD_HELLO             0x99
 
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
+
   Serial.begin(115200);
 
   nm_bsp_init();
