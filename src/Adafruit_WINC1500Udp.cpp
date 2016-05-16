@@ -44,6 +44,57 @@ Adafruit_WINC1500UDP::Adafruit_WINC1500UDP()
 	_sndSize = 0;
 }
 
+/* Start WiFiUDP socket, listening at local port PORT */
+uint8_t Adafruit_WINC1500UDP::begin(uint16_t port)
+{
+	struct sockaddr_in addr;
+	uint32 u32EnableCallbacks = 0;
+
+	_flag = 0;
+	_head = 0;
+	_tail = 0;
+	_rcvSize = 0;
+	_rcvPort = 0;
+	_rcvIP = 0;
+	_sndSize = 0;
+
+	// Initialize socket address structure.
+	addr.sin_family = AF_INET;
+	addr.sin_port = _htons(port);
+	addr.sin_addr.s_addr = 0;
+
+	// Open TCP server socket.
+	if ((_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		return 0;
+	}
+
+	// Add socket buffer handler:
+	socketBufferRegister(_socket, &_flag, &_head, &_tail, (uint8 *)_recvBuffer);
+	setsockopt(_socket, SOL_SOCKET, SO_SET_UDP_SEND_CALLBACK, &u32EnableCallbacks, 0);
+
+	// Bind socket:
+	if (bind(_socket, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)) < 0) {
+		close(_socket);
+		_socket = -1;
+		return 0;
+	}
+	
+	// Wait for connection or timeout:
+	unsigned long start = millis();
+	while (!READY && millis() - start < 2000) {
+		m2m_wifi_handle_events(NULL);
+	}
+	if (!READY) {
+		close(_socket);
+		_socket = -1;
+		return 0;
+	}
+	_flag &= ~SOCKET_BUFFER_FLAG_BIND;
+
+	return 1;
+}
+
+
 /* Start Adafruit_WINC1500UDP socket, listening at local port PORT */
 uint8_t Adafruit_WINC1500UDP::begin(uint16_t port, uint32_t multicastAddr)
 {

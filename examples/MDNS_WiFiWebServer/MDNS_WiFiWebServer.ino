@@ -52,7 +52,7 @@ Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 //Adafruit_WINC1500 WiFi;
 
 char ssid[] = "yourNetwork";      // your network SSID (name)
-char pass[] = "secretPassword";   // your network password
+char pass[] = "yourPassword";   // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 
 char mdnsName[] = "winc1500"; // the MDNS name that the board will respond to
@@ -63,7 +63,7 @@ char mdnsName[] = "winc1500"; // the MDNS name that the board will respond to
 int status = WL_IDLE_STATUS;
 
 // Create a MDNS responder to listen and respond to MDNS name requests.
-MDNSResponder mdns(&WiFi);  // Need to pass in a reference to the WiFi class above.
+Adafruit_WiFiMDNSResponder mdnsResponder;
 
 Adafruit_WINC1500Server server(80);
 
