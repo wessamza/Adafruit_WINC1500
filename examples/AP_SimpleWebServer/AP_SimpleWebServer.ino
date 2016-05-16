@@ -76,17 +76,29 @@ void setup() {
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present");
-    while (true);       // don't continue
+    // don't continue
+    while (true);
   }
 
-  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-  Serial.print("Creating Network named: ");
-  Serial.println(ssid);                   // print the network name (SSID);
-  status = WiFi.beginAP(ssid);
+  // print the network name (SSID);
+  Serial.print("Creating access point named: ");
+  Serial.println(ssid);
+
+  // Create open network. Change this line if you want to create an WEP network:
+  if (WiFi.beginAP(ssid) != WL_CONNECTED) {
+    Serial.println("Creating access point failed");
+    // don't continue
+    while (true);
+  }
+
   // wait 10 seconds for connection:
   delay(10000);
-  server.begin();                           // start the web server on port 80
-  printWifiStatus();                        // you're connected now, so print out the status
+
+  // start the web server on port 80
+  server.begin();
+
+  // you're connected now, so print out the status
+  printWifiStatus();
 }
 
 
