@@ -83,7 +83,7 @@ public:
 	Adafruit_WINC1500(uint8_t winc_cs, uint8_t winc_irq, uint8_t winc_rst);
 
 	int init();
-	
+
 	char* firmwareVersion();
 
 	/* Start Wifi connection with WPA/WPA2 encryption.
@@ -130,11 +130,12 @@ public:
 	char* SSID();
 	int32_t RSSI();
 	uint8_t encryptionType();
-	uint32 Channel();
+	uint32_t Channel();
 	uint8_t* BSSID(uint8_t* bssid);
 	int8_t scanNetworks();
 	char* SSID(uint8_t pos);
 	int32_t RSSI(uint8_t pos);
+	uint32_t Channel(uint8_t pos);
 	uint8_t encryptionType(uint8_t pos);
 
 	uint8_t status();
