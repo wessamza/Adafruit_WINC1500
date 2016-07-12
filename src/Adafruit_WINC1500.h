@@ -70,6 +70,7 @@ public:
 	uint32_t _gateway;
 	int _dhcp;
 	uint32_t _resolve;
+	uint32_t channel;
 	byte *_bssid;
 	wl_mode_t _mode;
 	wl_status_t _status;
@@ -129,6 +130,7 @@ public:
 	char* SSID();
 	int32_t RSSI();
 	uint8_t encryptionType();
+	uint32 Channel();
 	uint8_t* BSSID(uint8_t* bssid);
 	int8_t scanNetworks();
 	char* SSID(uint8_t pos);
