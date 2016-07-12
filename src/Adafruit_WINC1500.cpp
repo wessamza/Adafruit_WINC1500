@@ -69,7 +69,7 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 				WiFi._localip = pstrIPCfg->u32StaticIP;
 				WiFi._submask = pstrIPCfg->u32SubnetMask;
 				WiFi._gateway = pstrIPCfg->u32Gateway;
-				
+
 				WiFi._status = WL_CONNECTED;
 
 				// WiFi led ON (rev A then rev B).
@@ -227,7 +227,7 @@ extern "C" {
 char* Adafruit_WINC1500::firmwareVersion()
 {
 	tstrM2mRev rev;
-	
+
 	if (!_init) {
 		init();
 	}
@@ -247,7 +247,7 @@ uint8_t Adafruit_WINC1500::begin()
 	if (!_init) {
 		init();
 	}
-	
+
 	// Connect to router:
 	if (_dhcp) {
 		_localip = 0;
@@ -302,7 +302,7 @@ uint8_t Adafruit_WINC1500::startConnect(const char *ssid, uint8_t u8SecType, con
 	if (!_init) {
 		init();
 	}
-	
+
 	// Connect to router:
 	if (_dhcp) {
 		_localip = 0;
@@ -515,12 +515,12 @@ uint8_t *Adafruit_WINC1500::macAddress(uint8_t *mac)
 {
 	m2m_wifi_get_mac_address(mac);
 	byte tmpMac[6], i;
-	
+
 	m2m_wifi_get_mac_address(tmpMac);
-	
+
 	for(i = 0; i < 6; i++)
 		mac[i] = tmpMac[5-i];
-		
+
 	return mac;
 }
 
@@ -553,7 +553,7 @@ char* Adafruit_WINC1500::SSID()
 uint8_t* Adafruit_WINC1500::BSSID(uint8_t* bssid)
 {
 	int8_t net = scanNetworks();
-	
+
 	_bssid = bssid;
 	memset(bssid, 0, 6);
 	for (uint8_t i = 0; i < net; ++i) {
@@ -562,7 +562,7 @@ uint8_t* Adafruit_WINC1500::BSSID(uint8_t* bssid)
 			break;
 		}
 	}
-	
+
 	_bssid = 0;
 	return bssid;
 }
@@ -587,14 +587,16 @@ int32_t Adafruit_WINC1500::RSSI()
 	return _resolve;
 }
 
+
+// * curr channel not working //
 uint32_t Adafruit_WINC1500::Channel()
 {
 	// Clear pending events:
 	m2m_wifi_handle_events(NULL);
 
 	// Send RSSI request:
-	_resolve = 0;
-	if (m2m_wifi_req_curr_channel() < 0) {
+	_channel = 0;
+	/*if (m2m_wifi_req_curr_channel() < 0) {
 		return 0;
 	}
 
@@ -603,7 +605,7 @@ uint32_t Adafruit_WINC1500::Channel()
 	while (_resolve == 0 && millis() - start < 1000) {
 		m2m_wifi_handle_events(NULL);
 	}
-
+ */
 	return _channel;
 }
 
@@ -692,7 +694,7 @@ uint32_t Adafruit_WINC1500::Channel(uint8_t pos)
 }
 
 uint8_t Adafruit_WINC1500::encryptionType()
-{ 
+{
 	int8_t net = scanNetworks();
 
 	for (uint8_t i = 0; i < net; ++i) {
@@ -742,17 +744,17 @@ void Adafruit_WINC1500::setGPIO(uint8_t g, boolean val) {
 
 int Adafruit_WINC1500::hostByName(const char* aHostname, IPAddress& aResult)
 {
-	
+
 	// check if aHostname is already an ipaddress
 	if (aResult.fromString(aHostname)) {
-		// if fromString returns true we have an IP address ready 
+		// if fromString returns true we have an IP address ready
 		return 1;
 
 	} else {
 		// Network led ON (rev A then rev B).
 		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO16, 0);
 		m2m_periph_gpio_set_val(M2M_PERIPH_GPIO5, 0);
-	
+
 		// Send DNS request:
 		_resolve = 0;
 		if (gethostbyname((uint8 *)aHostname) < 0) {
