@@ -70,7 +70,7 @@ public:
 	uint32_t _gateway;
 	int _dhcp;
 	uint32_t _resolve;
-	uint32_t channel;
+	uint32_t _channel;
 	byte *_bssid;
 	wl_mode_t _mode;
 	wl_status_t _status;
