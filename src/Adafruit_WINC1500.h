@@ -72,6 +72,7 @@ public:
 	uint32_t _resolve;
 	uint32_t _channel;
 	byte *_bssid;
+	byte _getBssid[5];
 	wl_mode_t _mode;
 	wl_status_t _status;
 	char _scan_ssid[M2M_MAX_SSID_LEN];
@@ -132,6 +133,7 @@ public:
 	uint8_t encryptionType();
 	uint32_t Channel();
 	uint8_t* BSSID(uint8_t* bssid);
+	uint8_t* getBSSID(uint8_t pos);
 	int8_t scanNetworks();
 	char* SSID(uint8_t pos);
 	int32_t RSSI(uint8_t pos);
