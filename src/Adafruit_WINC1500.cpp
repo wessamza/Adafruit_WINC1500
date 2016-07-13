@@ -515,6 +515,12 @@ void Adafruit_WINC1500::disconnect()
 	m2m_periph_gpio_set_val(M2M_PERIPH_GPIO4, 1);
 }
 
+bool Adafruit_WINC1500::setMacAddress(uint8_t *mac)
+{
+	m2m_wifi_set_mac_address(mac);
+  return true;
+}
+
 uint8_t *Adafruit_WINC1500::macAddress(uint8_t *mac)
 {
 	m2m_wifi_get_mac_address(mac);
