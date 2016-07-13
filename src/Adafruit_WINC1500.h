@@ -124,6 +124,7 @@ public:
 	void disconnect();
 
 	uint8_t *macAddress(uint8_t *mac);
+  bool setMacAddress(uint8_t *mac);
 
 	uint32_t localIP();
 	uint32_t subnetMask();
