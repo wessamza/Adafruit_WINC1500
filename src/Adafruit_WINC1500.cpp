@@ -133,9 +133,13 @@ static void wifi_cb(uint8_t u8MsgType, void *pvMsg)
 			if (scan_ssid_len) {
 				memcpy(WiFi._scan_ssid, (const char *)pstrScanResult->au8SSID, scan_ssid_len);
 			}
-			if (WiFi._bssid) {
-				memcpy(WiFi._bssid, (const char *)pstrScanResult->au8BSSID, 6);
-			}
+
+	     //		if (WiFi._bssid) {
+        memset(WiFi._getBssid, 0, 6);
+        memcpy(WiFi._getBssid,(byte*)pstrScanResult->au8BSSID,6);
+
+		   //	}
+
 			WiFi._channel = pstrScanResult->u8ch;
 			WiFi._resolve = pstrScanResult->s8rssi;
 			WiFi._scan_auth = pstrScanResult->u8AuthType;
@@ -671,6 +675,26 @@ int32_t Adafruit_WINC1500::RSSI(uint8_t pos)
 
 	_status = tmp;
 	return _resolve;
+}
+
+byte* Adafruit_WINC1500::getBSSID(uint8_t pos)
+{
+	wl_status_t tmp = _status;
+
+	// Get scan RSSI result:
+	if (m2m_wifi_req_scan_result(pos) < 0) {
+		return 0;
+	}
+
+	// Wait for connection or timeout:
+	_status = WL_IDLE_STATUS;
+	unsigned long start = millis();
+	while (!(_status & WL_SCAN_COMPLETED) && millis() - start < 2000) {
+		m2m_wifi_handle_events(NULL);
+	}
+
+	_status = tmp;
+	return _getBssid;
 }
 
 uint32_t Adafruit_WINC1500::Channel(uint8_t pos)
