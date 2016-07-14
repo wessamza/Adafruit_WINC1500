@@ -86,6 +86,7 @@ public:
 	int init();
 
 	char* firmwareVersion();
+	bool sendPacket(char* packet,int header_size, int packet_size);
 
 	/* Start Wifi connection with WPA/WPA2 encryption.
 	 *
