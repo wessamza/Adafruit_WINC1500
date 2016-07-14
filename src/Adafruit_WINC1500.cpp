@@ -228,6 +228,23 @@ extern "C" {
 	sint8 nm_get_firmware_info(tstrM2mRev* M2mRev);
 }
 
+
+bool Adafruit_WINC1500::sendPacket(char* packet,int header_size, int packet_size)
+{
+
+
+/*  uint8 xx[] = { 0xff,0xff,0xff,0xff,0xff,0xff,0xf8,0xf0,0x05,0xf5,0xd8,0xe4,0x08,0x06,0x00,0x01
+  ,0x08,0x00,0x06,0x04,0x00,0x01,0xf8,0xf0,0x05,0xf5,0xd8,0xe4,0xc0,0xa8,0x01,0x11
+  ,0x00,0x00,0x00,0x00,0x00,0x00,0xc0,0xa8,0x01,0x01};
+
+  m2m_wifi_send_wlan_pkt(xx, 14, 42);
+ */ // change
+
+
+
+  return false;
+}
+
 char* Adafruit_WINC1500::firmwareVersion()
 {
 	tstrM2mRev rev;
@@ -619,8 +636,11 @@ uint32_t Adafruit_WINC1500::Channel()
 	return _channel;
 }
 
+
+
 int8_t Adafruit_WINC1500::scanNetworks()
 {
+
 	wl_status_t tmp = _status;
 
 	if (!_init) {
@@ -641,6 +661,8 @@ int8_t Adafruit_WINC1500::scanNetworks()
 	_status = tmp;
 	return m2m_wifi_get_num_ap_found();
 }
+
+
 
 char* Adafruit_WINC1500::SSID(uint8_t pos)
 {
